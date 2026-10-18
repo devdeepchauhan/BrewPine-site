@@ -1,8 +1,13 @@
 {
-  "name": "[FOUNDER NAME]",
+  "name": "[DEVDEEP CHAUHAN]",
   "role": "Founder & Game Developer",
-  "bio": "[Your biography goes here. Describe your background, what draws you to game development, and what BrewPine means to you. Keep it personal and honest — this isn't a corporate bio.]",
-  "skills": ["Game Development", "GDScript / Godot", "Programming", "Game Design", "Prototyping"],
+  "bio": "[I'm a computer engineering student and game developer who loves building gameplay systems and exploring how game engines work. I started BrewPine as a place to experiment, learn, and create games driven by curiosity. For me, it's about turning ideas into experiences, one experiment at a time.]",
+  "skills": [
+    "Game Development",
+    "Programming",
+    "Game Design",
+    "Prototyping"
+  ],
   "social": {
     "github": "",
     "itchio": "",
