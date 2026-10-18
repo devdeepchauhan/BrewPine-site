@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import { getCollection } from 'astro:content';
+
+const allVideos = (await getCollection('videos', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const categories = ['All', ...new Set(allVideos.map(v => v.data.category))];
+---
+
+<BaseLayout title="Videos" description="BrewPine devlogs, tutorials, game mechanics breakdowns, and behind-the-scenes videos.">
+  <div class="videos-header">
+    <div class="container">
+      <p class="hand-label" style="color:var(--color-lime-dark)">✦ The Archive</p>
+      <h1>Videos</h1>
+      <p class="videos-header-sub">Devlogs, tutorials, and behind-the-scenes content from the studio.</p>
+    </div>
+  </div>
+
+  <section class="section-pad">
+    <div class="container">
+      {allVideos.length > 0 ? (
+        <>
+          <div class="video-cats" role="group" aria-label="Filter by category">
+            {categories.map(cat => (
+              <button class="filter-btn" data-cat={cat} aria-pressed={cat === 'All'}>{cat}</button>
+            ))}
+          </div>
+
+          <div class="videos-grid" id="videos-grid">
+            {allVideos.map(v => (
+              <div class="video-item" data-cat={v.data.category}>
+                <VideoCard
+                  title={v.data.title}
+                  youtubeId={v.data.youtubeId}
+                  description={v.data.description}
+                  category={v.data.category}
+                  date={v.data.date.toISOString()}
+                />
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div class="empty-videos">
+          <div class="empty-video-art" aria-hidden="true">
+            <svg viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Camera / screen -->
+              <rect x="30" y="30" width="140" height="90" rx="4" stroke="var(--color-moss)" stroke-width="1.5" stroke-dasharray="6 4"/>
+              <rect x="45" y="42" width="110" height="68" rx="2" stroke="var(--color-moss-light)" stroke-width="1.2"/>
+              <!-- Play icon -->
+              <path d="M85 65 L115 76 L85 87 Z" stroke="var(--color-lime-dark)" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+              <!-- Tripod legs -->
+              <path d="M100 120 L80 155 M100 120 L100 155 M100 120 L120 155" stroke="var(--color-moss)" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Stars -->
+              <circle cx="25" cy="25" r="2" fill="var(--color-lime-dark)" opacity="0.5"/>
+              <circle cx="175" cy="20" r="1.5" fill="var(--color-lime-dark)" opacity="0.4"/>
+              <circle cx="180" cy="130" r="2" fill="var(--color-moss)" opacity="0.4"/>
+              <!-- Annotation -->
+              <path d="M30 100 Q15 95 18 85" stroke="var(--color-olive)" stroke-width="1" stroke-dasharray="2 2" opacity="0.6"/>
+              <text x="5" y="75" font-size="9" fill="var(--color-olive)" font-family="cursive" opacity="0.7">soon...</text>
+            </svg>
+          </div>
+          <p class="hand-label" style="font-size:1.5rem">No videos yet</p>
+          <p>Devlogs and tutorials will appear here. In the meantime, check out the written journal.</p>
+          <a href="/journal/" class="btn btn-primary">Read the Journal →</a>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const btns  = document.querySelectorAll('.filter-btn');
+  const items = document.querySelectorAll('.video-item') as NodeListOf<HTMLElement>;
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = (btn as HTMLElement).dataset.cat ?? 'All';
+      btns.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      items.forEach(item => { item.hidden = cat !== 'All' && item.dataset.cat !== cat; });
+    });
+  });
+</script>
+
+<style>
+  .videos-header {
+    background: var(--color-charcoal);
+    color: var(--color-cream-text);
+    padding: var(--space-16) 0 var(--space-12);
+    border-bottom: 3px solid var(--color-lime);
+  }
+
+  .videos-header h1 { color: var(--color-cream-text); margin: var(--space-2) 0 var(--space-4); }
+  .videos-header-sub { color: rgba(240,232,208,0.75); max-width: 600px; margin: 0; }
+
+  .video-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-10);
+  }
+
+  .filter-btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border: 1.5px solid var(--color-charcoal);
+    border-radius: 2px;
+    background: transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .filter-btn:hover, .filter-btn[aria-pressed="true"] {
+    background: var(--color-lime);
+    border-color: var(--color-lime-dark);
+    color: var(--color-charcoal);
+  }
+
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .empty-videos {
+    text-align: center;
+    padding: var(--space-16) var(--space-8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    color: var(--text-muted);
+  }
+
+  .empty-video-art svg { width: 180px; height: auto; }
+
+  .empty-videos p { max-width: 420px; margin: 0; }
+</style>

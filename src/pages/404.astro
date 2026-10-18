@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404 — Page Not Found" description="This page doesn't exist — but you're already in the forest, so let's find your way back.">
+  <main class="notfound-page" id="main-content">
+    <div class="notfound-art" aria-hidden="true">
+      <svg viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg" class="notfound-svg">
+        <!-- Big 404 numbers in sketch style -->
+        <!-- 4 -->
+        <path d="M20 60 L20 120 M20 90 L50 60 L50 90 L50 120" stroke="var(--color-forest)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- 0 -->
+        <ellipse cx="115" cy="90" rx="35" ry="45" stroke="var(--color-lime-dark)" stroke-width="3"/>
+        <!-- 4 -->
+        <path d="M170 60 L170 120 M170 90 L200 60 L200 90 L200 120" stroke="var(--color-forest)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Lost in forest illustration -->
+        <!-- Ground -->
+        <path d="M10 200 Q80 185 150 200 Q220 215 290 200" stroke="var(--color-moss)" stroke-width="1.5" fill="none"/>
+        <!-- Trees -->
+        <path d="M50 200 L58 175 H55 L62 158 H59 L67 145 H41 L49 158 H46 L53 175 H50 Z" stroke="var(--color-moss)" stroke-width="1.2" stroke-linejoin="round" fill="none"/>
+        <path d="M230 200 L238 175 H235 L242 158 H239 L247 145 H221 L229 158 H226 L233 175 H230 Z" stroke="var(--color-moss)" stroke-width="1.2" stroke-linejoin="round" fill="none"/>
+        <!-- Lost mushroom character -->
+        <ellipse cx="150" cy="178" rx="15" ry="10" stroke="var(--color-rust)" stroke-width="1.5"/>
+        <circle cx="144" cy="172" r="1.5" fill="var(--color-rust)" opacity="0.5"/>
+        <circle cx="154" cy="170" r="2" fill="var(--color-rust)" opacity="0.4"/>
+        <path d="M140 178 Q139 192 142 198 M160 178 Q161 192 158 198" stroke="var(--color-rust)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Question mark above mushroom -->
+        <path d="M148 155 Q148 147 155 147 Q162 147 162 155 Q162 163 150 163" stroke="var(--color-olive)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="150" cy="167" r="1.5" fill="var(--color-olive)"/>
+        <!-- Stars / sparkles -->
+        <circle cx="20" cy="140" r="1.5" fill="var(--color-lime-dark)" opacity="0.6"/>
+        <circle cx="280" cy="145" r="1.5" fill="var(--color-lime-dark)" opacity="0.5"/>
+        <circle cx="260" cy="110" r="1"   fill="var(--color-moss-light)" opacity="0.5"/>
+        <!-- Annotation -->
+        <path d="M175 175 Q185 170 188 162" stroke="var(--color-olive)" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="187" y="158" font-size="9" fill="var(--color-olive)" font-family="cursive">lost!</text>
+      </svg>
+    </div>
+
+    <div class="notfound-text">
+      <h1>You're in the wrong forest.</h1>
+      <p>This page doesn't exist — you may have followed a broken link or mistyped the URL.</p>
+      <p class="hand-label notfound-note">← this page is definitely not a real page →</p>
+      <div class="notfound-links">
+        <a href="/" class="btn btn-primary">Back to Home</a>
+        <a href="/journal/" class="btn btn-outline">Read the Journal</a>
+        <a href="/games/" class="btn btn-outline">Browse Games</a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .notfound-page {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-12);
+    padding: var(--space-20) var(--space-6);
+    text-align: center;
+  }
+
+  .notfound-art { display: flex; justify-content: center; }
+
+  .notfound-svg {
+    width: 280px;
+    height: auto;
+    animation: float 7s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-10px); }
+  }
+
+  .notfound-text { max-width: 500px; }
+  .notfound-text h1 { color: var(--color-forest); font-size: clamp(1.6rem, 4vw, 2.5rem); margin-bottom: var(--space-4); }
+  .notfound-text p  { color: var(--text-secondary); margin-bottom: var(--space-4); }
+
+  .notfound-note {
+    color: var(--color-olive);
+    font-size: 1rem;
+    margin-bottom: var(--space-8);
+    display: block;
+  }
+
+  .notfound-links {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>

@@ -1,0 +1,15 @@
+{
+  "name": "[FOUNDER NAME]",
+  "role": "Founder & Game Developer",
+  "bio": "[Your biography goes here. Describe your background, what draws you to game development, and what BrewPine means to you. Keep it personal and honest — this isn't a corporate bio.]",
+  "skills": ["Game Development", "GDScript / Godot", "Programming", "Game Design", "Prototyping"],
+  "social": {
+    "github": "",
+    "itchio": "",
+    "twitter": "",
+    "portfolio": ""
+  },
+  "founder": true,
+  "hidden": false,
+  "order": 1
+}

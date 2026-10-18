@@ -1,0 +1,386 @@
+/* =======================================================
+   BREWPINE — GLOBAL DESIGN SYSTEM
+   Hand-drawn devlog aesthetic · We Brew Worlds
+   ======================================================= */
+
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap');
+
+/* --- CSS Custom Properties --- */
+:root {
+  /* Color Palette */
+  --color-parchment:     #f4edd8;
+  --color-parchment-dark:#e8dcc4;
+  --color-parchment-mid: #ede3cc;
+  --color-forest:        #1e3a25;
+  --color-forest-mid:    #2a5233;
+  --color-moss:          #4a6741;
+  --color-moss-light:    #6b8f5e;
+  --color-charcoal:      #1c1c1c;
+  --color-charcoal-mid:  #2e2b20;
+  --color-ink:           #0e0d09;
+  --color-lime:          #a8d831;
+  --color-lime-dark:     #7ba81e;
+  --color-lime-glow:     #c8f050;
+  --color-olive:         #6b6b3d;
+  --color-rust:          #8b3a2a;
+  --color-violet:        #4a2d6b;
+  --color-fungal:        #6b2d1e;
+  --color-cream-text:    #f0e8d0;
+
+  /* Background */
+  --bg-primary:   var(--color-parchment);
+  --bg-dark:      var(--color-charcoal);
+  --bg-forest:    var(--color-forest);
+  --bg-section:   var(--color-parchment-mid);
+
+  /* Text */
+  --text-primary:   var(--color-charcoal);
+  --text-secondary: var(--color-olive);
+  --text-muted:     #7a7055;
+  --text-inverse:   var(--color-cream-text);
+  --text-accent:    var(--color-lime-dark);
+
+  /* Typography */
+  --font-display:  'Playfair Display', Georgia, serif;
+  --font-body:     'Inter', system-ui, sans-serif;
+  --font-mono:     'JetBrains Mono', 'Courier New', monospace;
+  --font-hand:     'Caveat', cursive;
+
+  /* Spacing */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* Border radius */
+  --radius-sm:  3px;
+  --radius-md:  6px;
+  --radius-lg: 12px;
+
+  /* Shadows */
+  --shadow-ink: 2px 3px 0 rgba(14, 13, 9, 0.35);
+  --shadow-lift: 4px 6px 0 rgba(14, 13, 9, 0.25);
+  --shadow-glow: 0 0 18px rgba(168, 216, 49, 0.3);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-med:  300ms ease;
+
+  /* Layout */
+  --max-width: 1200px;
+  --content-width: 740px;
+  --nav-height: 72px;
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  min-height: 100vh;
+  /* Subtle paper grain texture via CSS */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* --- Typography Scale --- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  line-height: 1.2;
+  color: var(--color-forest);
+}
+
+h1 { font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 900; }
+h2 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; }
+h3 { font-size: clamp(1.2rem, 3vw, 1.75rem); font-weight: 700; }
+h4 { font-size: 1.2rem; font-weight: 700; }
+h5 { font-size: 1rem; font-weight: 600; font-family: var(--font-body); }
+h6 { font-size: 0.875rem; font-weight: 600; font-family: var(--font-body); }
+
+p { margin-bottom: var(--space-4); }
+
+a {
+  color: var(--color-forest-mid);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-lime-dark);
+  text-decoration-color: var(--color-lime);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* --- Focus Accessibility --- */
+:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* --- Code --- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--color-parchment-dark);
+  border: 1px solid rgba(14, 13, 9, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.4em;
+  color: var(--color-rust);
+}
+
+pre {
+  background: var(--color-charcoal) !important;
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  overflow-x: auto;
+  border: 2px solid var(--color-forest);
+  margin: var(--space-8) 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.875rem;
+}
+
+/* --- Layout Utilities --- */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.section-pad {
+  padding: var(--space-20) 0;
+}
+
+.section-pad-sm {
+  padding: var(--space-12) 0;
+}
+
+/* --- Hand-drawn Decorative Elements --- */
+.sketch-border {
+  border: 2px solid var(--color-charcoal);
+  border-radius: 2px;
+  box-shadow: var(--shadow-ink);
+  position: relative;
+}
+
+.ink-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.ink-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--color-lime);
+  clip-path: polygon(0% 30%, 2% 70%, 5% 20%, 8% 80%, 12% 10%, 15% 60%, 20% 30%, 25% 70%, 30% 15%, 35% 65%, 40% 25%, 45% 75%, 50% 20%, 55% 70%, 60% 30%, 65% 65%, 70% 20%, 75% 75%, 80% 25%, 85% 70%, 90% 20%, 95% 60%, 100% 30%, 100% 100%, 0% 100%);
+}
+
+.hand-label {
+  font-family: var(--font-hand);
+  font-size: 1.1rem;
+  color: var(--color-olive);
+  letter-spacing: 0.02em;
+}
+
+.lime-accent {
+  color: var(--color-lime-dark);
+  font-weight: 600;
+}
+
+/* --- Status Badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 2px;
+  border: 1.5px solid currentColor;
+}
+
+.badge-prototype  { color: var(--color-lime-dark);   background: rgba(168,216,49,0.12); }
+.badge-indev      { color: var(--color-moss-light);  background: rgba(74,103,65,0.12); }
+.badge-released   { color: var(--color-forest-mid);  background: rgba(30,58,37,0.12); }
+.badge-archived   { color: var(--color-text-muted);  background: rgba(30,30,30,0.08); }
+
+/* --- Category Pills --- */
+.category-pill {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  background: var(--color-parchment-dark);
+  border: 1.5px solid var(--color-charcoal);
+  border-radius: 2px;
+  color: var(--color-charcoal);
+  text-decoration: none;
+  display: inline-block;
+  transition: background var(--transition-fast);
+}
+
+.category-pill:hover {
+  background: var(--color-lime);
+  border-color: var(--color-lime-dark);
+  color: var(--color-charcoal);
+  text-decoration: none;
+}
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: var(--space-3) var(--space-6);
+  border-radius: 3px;
+  border: 2px solid var(--color-charcoal);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--color-charcoal);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--color-lime);
+  color: var(--color-charcoal);
+}
+
+.btn-primary:hover {
+  color: var(--color-charcoal);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-charcoal);
+}
+
+.btn-outline:hover {
+  background: var(--color-parchment-dark);
+  color: var(--color-charcoal);
+}
+
+.btn-dark {
+  background: var(--color-forest);
+  color: var(--color-cream-text);
+  border-color: var(--color-forest);
+}
+
+.btn-dark:hover {
+  background: var(--color-forest-mid);
+  color: var(--color-lime);
+  border-color: var(--color-forest-mid);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+}
+
+/* --- Section Headers --- */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-10);
+}
+
+.section-header h2 {
+  position: relative;
+}
+
+.section-annotation {
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  color: var(--color-olive);
+  transform: rotate(-1.5deg);
+  display: inline-block;
+}
+
+/* --- Dividers --- */
+.ink-divider {
+  width: 100%;
+  height: 16px;
+  margin: var(--space-8) 0;
+  background: none;
+  border: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 16' preserveAspectRatio='none'%3E%3Cpath d='M0 8 Q100 2 200 10 Q300 18 400 6 Q500 -2 600 12 Q700 20 800 8' stroke='%231c1c1c' stroke-width='1.5' fill='none' stroke-opacity='0.35' stroke-dasharray='4 2'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+}
+
+/* --- Hover Lift Effect --- */
+.hover-lift {
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px) rotate(0.3deg);
+  box-shadow: var(--shadow-lift);
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html { scroll-behavior: auto; }
+}
+
+/* --- Responsive Helpers --- */
+@media (max-width: 768px) {
+  .container { padding: 0 var(--space-4); }
+  .section-pad  { padding: var(--space-12) 0; }
+  .section-pad-sm { padding: var(--space-8) 0; }
+  h1 { font-size: 2.2rem; }
+  h2 { font-size: 1.6rem; }
+}

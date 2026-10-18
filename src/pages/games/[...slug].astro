@@ -1,0 +1,318 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const games = await getCollection('games', ({ data }) => !data.draft);
+  return games.map(game => ({
+    params: { slug: game.id },
+    props:  { game },
+  }));
+}
+
+const { game } = Astro.props;
+const { Content } = await render(game);
+
+const relatedPosts = game.data.relatedPosts.length > 0
+  ? (await getCollection('journal')).filter(p => game.data.relatedPosts.includes(p.id))
+  : [];
+
+const statusClass: Record<string, string> = {
+  'Prototype':     'badge-prototype',
+  'In Development':'badge-indev',
+  'Released':      'badge-released',
+  'Archived':      'badge-archived',
+};
+
+const releaseYear = game.data.releaseDate?.getFullYear();
+
+// Detect if trailerUrl is YouTube ID or full URL
+const rawTrailer = game.data.trailerUrl ?? '';
+const youtubeId = rawTrailer.includes('youtube.com') || rawTrailer.includes('youtu.be')
+  ? rawTrailer.split(/v=|youtu\.be\//)[1]?.split('&')[0]
+  : rawTrailer;
+---
+
+<BaseLayout
+  title={game.data.title}
+  description={game.data.description}
+  image={game.data.cover}
+>
+  <!-- Game header -->
+  <div class="game-pg-header" style={game.data.cover ? `--cover:url(${game.data.cover})` : ''}>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>→</span>
+        <a href="/games/">Games</a>
+        <span>→</span>
+        <span aria-current="page">{game.data.title}</span>
+      </nav>
+
+      <div class="game-pg-meta">
+        <span class:list={['badge', statusClass[game.data.status]]}>{game.data.status}</span>
+        <span class="category-pill">{game.data.genre}</span>
+        {releaseYear && <span class="game-year">{releaseYear}</span>}
+      </div>
+
+      <h1 class="game-pg-title">{game.data.title}</h1>
+      <p class="game-pg-desc">{game.data.description}</p>
+
+      {(game.data.itchUrl || game.data.trailerUrl) && (
+        <div class="game-pg-actions">
+          {game.data.itchUrl && (
+            <a href={game.data.itchUrl} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+              Play on itch.io ↗
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+
+  <!-- Cover image -->
+  {game.data.cover && (
+    <div class="game-pg-cover-wrap">
+      <img src={game.data.cover} alt={`${game.data.title} cover art`} class="game-pg-cover" width="1200" height="500" loading="eager"/>
+    </div>
+  )}
+
+  <div class="container game-pg-body section-pad-sm">
+    <!-- Trailer -->
+    {youtubeId && (
+      <section class="game-pg-trailer" aria-label="Trailer">
+        <h2>Trailer</h2>
+        <div class="game-trailer-wrap" id={`trailer-${youtubeId}`}>
+          <img src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`} alt="" class="game-trailer-thumb" />
+          <div class="game-trailer-overlay">
+            <button class="video-card-play" data-yt-id={youtubeId} data-container={`trailer-${youtubeId}`} aria-label="Play trailer">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="24" cy="24" r="20" fill="rgba(30,58,37,0.85)" stroke="var(--color-lime)" stroke-width="2"/>
+                <path d="M19 16 L34 24 L19 32 Z" fill="var(--color-lime)"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Screenshots -->
+    {game.data.screenshots.length > 0 && (
+      <section class="game-pg-screenshots" aria-label="Screenshots">
+        <h2>Screenshots</h2>
+        <div class="screenshots-grid">
+          {game.data.screenshots.map((src, i) => (
+            <img src={src} alt={`${game.data.title} screenshot ${i + 1}`} loading="lazy" width="600" height="338" class="sketch-border" />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Overview / full description -->
+    <section class="game-pg-overview prose" aria-label="Game overview">
+      <h2>Overview</h2>
+      <Content />
+    </section>
+
+    <!-- Credits -->
+    {game.data.credits.length > 0 && (
+      <section class="game-pg-credits" aria-label="Credits">
+        <h2>Credits</h2>
+        <table class="credits-table">
+          <thead>
+            <tr><th>Name</th><th>Role</th></tr>
+          </thead>
+          <tbody>
+            {game.data.credits.map(c => (
+              <tr><td>{c.name}</td><td>{c.role}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    )}
+
+    <!-- Related journal posts -->
+    {relatedPosts.length > 0 && (
+      <section class="game-pg-devlogs" aria-label="Development logs">
+        <h2>Development Logs</h2>
+        <div class="devlogs-list">
+          {relatedPosts.map(post => (
+            <a href={`/journal/${post.id}/`} class="devlog-link sketch-border">
+              <span class="category-pill">{post.data.category}</span>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</BaseLayout>
+
+<script>
+  document.querySelectorAll('.video-card-play').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ytId = btn.getAttribute('data-yt-id');
+      const containerId = btn.getAttribute('data-container');
+      const container = document.getElementById(containerId ?? '');
+      if (!container || !ytId) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0`;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
+      iframe.title = 'Game trailer';
+      container.style.position = 'relative';
+      container.style.paddingBottom = '56.25%';
+      container.style.height = '0';
+      container.innerHTML = '';
+      container.appendChild(iframe);
+    });
+  });
+</script>
+
+<style>
+  .game-pg-header {
+    background: var(--color-charcoal-mid);
+    color: var(--color-cream-text);
+    padding: var(--space-10) 0 var(--space-12);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8rem;
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+    color: rgba(240,232,208,0.5);
+  }
+
+  .breadcrumb a { color: rgba(240,232,208,0.65); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--color-lime); }
+
+  .game-pg-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+  }
+
+  .game-year {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: rgba(240,232,208,0.5);
+  }
+
+  .game-pg-title {
+    color: var(--color-cream-text);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: var(--space-4);
+  }
+
+  .game-pg-desc {
+    color: rgba(240,232,208,0.8);
+    font-size: 1.05rem;
+    max-width: 680px;
+    margin-bottom: var(--space-8);
+    line-height: 1.7;
+  }
+
+  .game-pg-actions { display: flex; gap: var(--space-4); flex-wrap: wrap; }
+
+  .game-pg-cover-wrap { max-height: 400px; overflow: hidden; }
+  .game-pg-cover { width: 100%; height: 400px; object-fit: cover; }
+
+  .game-pg-body { display: flex; flex-direction: column; gap: var(--space-12); }
+
+  .game-pg-body h2 {
+    font-size: 1.5rem;
+    color: var(--color-forest);
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--color-parchment-dark);
+  }
+
+  /* Trailer */
+  .game-trailer-wrap {
+    position: relative;
+    cursor: pointer;
+    border: 2px solid var(--color-charcoal);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .game-trailer-thumb {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 440px;
+    object-fit: cover;
+  }
+
+  .game-trailer-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14,13,9,0.3);
+  }
+
+  .game-pg-screenshots h2 { margin-bottom: var(--space-5); }
+
+  .screenshots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .screenshots-grid img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    transition: transform var(--transition-med);
+  }
+
+  .screenshots-grid img:hover { transform: scale(1.02); }
+
+  /* Prose */
+  .prose { max-width: 760px; }
+  .prose :global(p) { color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.7; }
+  .prose :global(h3) { color: var(--color-forest); margin: var(--space-6) 0 var(--space-3); }
+  .prose :global(ul), .prose :global(ol) { padding-left: var(--space-6); margin-bottom: var(--space-4); }
+  .prose :global(li) { margin-bottom: var(--space-2); color: var(--text-secondary); }
+  .prose :global(table) { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
+  .prose :global(th), .prose :global(td) {
+    border: 1.5px solid var(--color-parchment-dark);
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  .prose :global(th) { background: var(--color-parchment-dark); font-family: var(--font-mono); font-size: 0.8rem; }
+
+  /* Credits table */
+  .credits-table { width: 100%; max-width: 500px; border-collapse: collapse; }
+  .credits-table th, .credits-table td {
+    border: 1.5px solid var(--color-parchment-dark);
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.9rem;
+  }
+  .credits-table th { background: var(--color-parchment-dark); font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.05em; }
+
+  /* Devlogs */
+  .devlogs-list { display: flex; flex-direction: column; gap: var(--space-4); max-width: 700px; }
+  .devlog-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    background: var(--color-parchment);
+    text-decoration: none;
+    transition: transform var(--transition-med);
+  }
+  .devlog-link:hover { transform: translateX(4px); text-decoration: none; }
+  .devlog-link h3 { font-size: 1rem; color: var(--color-forest); }
+  .devlog-link p  { font-size: 0.875rem; color: var(--text-secondary); margin: 0; }
+</style>

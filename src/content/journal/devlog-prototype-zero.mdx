@@ -1,0 +1,53 @@
+---
+title: "Prototype Zero — The Brewing Begins"
+description: "Notes from the first active BrewPine prototype — an experimental 2D platformer exploring strange movement mechanics and hand-drawn world aesthetics."
+date: 2026-10-05
+category: "Development Log"
+tags: ["prototype", "godot", "2d", "platformer", "devlog"]
+cover: "/images/journal/devlog-01-cover.jpg"
+draft: false
+---
+
+# Prototype Zero — The Brewing Begins
+
+> **⚠ SAMPLE POST** — Replace with your actual devlog content. This demonstrates a development log format with screenshots and structured notes.
+
+Every studio's first devlog is the same strange mix of excitement and uncertainty. Here's what the first BrewPine prototype looks like right now.
+
+## The Concept
+
+The prototype is a 2D platformer — but the movement is the experiment. Instead of standard left-right-jump controls, the player character *flows* — sticking to surfaces, sliding around corners, and building momentum in ways that feel slightly wrong in interesting ways.
+
+The working title is **Project Mycelium**. Because everything is connected underground.
+
+## What Exists So Far
+
+- A movement controller in GDScript that handles surface gravity.
+- A hand-drawn tileset (rough pencil art, no clean lines).
+- Two test levels that feel more like sketches than levels.
+- A camera system that follows loosely, with a slight delay.
+
+```gdscript
+# Current movement snippet — expects revision
+func _physics_process(delta: float) -> void:
+  var input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+  velocity = velocity.lerp(input * SPEED, ACCELERATION * delta)
+  move_and_slide()
+```
+
+This is rough. The acceleration feel needs work. The jump arc is inconsistent. But something interesting happens when you gain speed through a slope — that's the thing worth following.
+
+## Open Questions
+
+1. **Is this fun or just strange?** Unknown yet.
+2. **Does the hand-drawn art style hold together at this scale?** Needs more tiles to know.
+3. **What is the player trying to do?** Still unclear. The mechanic comes first, the goal comes later.
+
+## What's Next
+
+- More tile variety.
+- A clearer design goal (something to reach, something to avoid).
+- Better camera framing.
+- Playtesting with someone who hasn't seen the controls before.
+
+Updates coming when there's something worth showing.

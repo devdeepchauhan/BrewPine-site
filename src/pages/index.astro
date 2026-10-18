@@ -1,0 +1,596 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import GameCard from '../components/GameCard.astro';
+import VideoCard from '../components/VideoCard.astro';
+import { getCollection, render } from 'astro:content';
+import { SITE_DESCRIPTION, SOCIAL } from '../consts';
+
+// Fetch content
+const allPosts  = (await getCollection('journal', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const latestPosts = allPosts.slice(0, 3);
+
+const allGames  = (await getCollection('games', ({ data }) => !data.draft))
+  .sort((a, b) => (b.data.releaseDate?.getTime() ?? 0) - (a.data.releaseDate?.getTime() ?? 0));
+const featuredGames = allGames.slice(0, 3);
+
+const allVideos = (await getCollection('videos', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const featuredVideos = allVideos.slice(0, 3);
+
+const projects = (await getCollection('projects', ({ data }) => data.featured)).slice(0, 3);
+
+// Knowledge posts = programming + tutorial categories
+const knowledgePosts = allPosts
+  .filter(p => p.data.category === 'Programming' || p.data.category === 'Tutorial' || p.data.category === 'Engine Experiments')
+  .slice(0, 3);
+---
+
+<BaseLayout description={SITE_DESCRIPTION}>
+
+  <!-- ══════════════ HERO ══════════════ -->
+  <section class="hero" aria-labelledby="hero-headline">
+    <div class="hero-bg" aria-hidden="true">
+      <!-- Floating doodle elements -->
+      <div class="doodle doodle-mushroom">
+        <svg viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="30" cy="28" rx="22" ry="16" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <path d="M20 28 Q18 50 22 65 M40 28 Q42 50 38 65" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <ellipse cx="30" cy="65" rx="10" ry="3" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+          <circle cx="22" cy="22" r="3" fill="currentColor" opacity="0.5"/>
+          <circle cx="36" cy="18" r="2" fill="currentColor" opacity="0.4"/>
+          <circle cx="28" cy="30" r="2.5" fill="currentColor" opacity="0.35"/>
+        </svg>
+      </div>
+      <div class="doodle doodle-potion">
+        <svg viewBox="0 0 50 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 18 L18 30 Q10 38 10 50 Q10 64 25 64 Q40 64 40 50 Q40 38 32 30 L30 18 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <line x1="20" y1="18" x2="30" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="23" y1="12" x2="27" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <ellipse cx="25" cy="50" rx="10" ry="8" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+          <circle cx="20" cy="48" r="2" fill="currentColor" opacity="0.4" class="bubble"/>
+          <circle cx="29" cy="53" r="1.5" fill="currentColor" opacity="0.3" class="bubble"/>
+        </svg>
+      </div>
+      <div class="doodle doodle-pine">
+        <svg viewBox="0 0 50 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25 5 L38 28 H32 L42 48 H35 L46 70 H4 L15 48 H8 L18 28 H12 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <line x1="25" y1="70" x2="25" y2="85" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="doodle doodle-stars">
+        <svg viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+          <circle cx="50" cy="5" r="1" fill="currentColor"/>
+          <circle cx="90" cy="15" r="2" fill="currentColor"/>
+          <circle cx="30" cy="40" r="1" fill="currentColor"/>
+          <circle cx="70" cy="50" r="1.5" fill="currentColor"/>
+          <path d="M40 25 L42 22 L44 25 L46 27 L43 28 L42 32 L41 28 L38 27 Z" stroke="currentColor" stroke-width="1" fill="none"/>
+          <path d="M75 20 L76.5 17 L78 20 L80 21.5 L77.5 22.5 L76.5 26 L75.5 22.5 L73 21.5 Z" stroke="currentColor" stroke-width="0.8" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <p class="hero-eyebrow hand-label">✦ An Independent Game Studio</p>
+        <h1 id="hero-headline" class="hero-headline">
+          We Brew<br /><span class="hero-accent">Worlds.</span>
+        </h1>
+        <p class="hero-sub">{SITE_DESCRIPTION}</p>
+        <div class="hero-buttons">
+          <a href="/games/" class="btn btn-primary">Explore Our Experiments</a>
+          <a href="/journal/" class="btn btn-outline">Read the Devlog</a>
+        </div>
+        <p class="hero-annotation hand-label">→ no big budget, just big ideas</p>
+      </div>
+
+      <div class="hero-illustration" aria-hidden="true">
+        <img
+          src="/images/hero-illustration.png"
+          alt=""
+          width="560"
+          height="480"
+          loading="eager"
+          class="hero-img"
+        />
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="hero-scroll" aria-hidden="true">
+      <span class="hand-label">scroll</span>
+      <svg viewBox="0 0 20 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="26">
+        <path d="M10 4 L10 28 M4 22 L10 28 L16 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Wavy section divider -->
+  <div class="wave-divider" aria-hidden="true">
+    <svg viewBox="0 0 1440 30" preserveAspectRatio="none">
+      <path d="M0 15 Q360 0 720 15 Q1080 30 1440 15 V30 H0 Z" fill="var(--bg-section)"/>
+    </svg>
+  </div>
+
+  <!-- ══════════════ LATEST FROM STUDIO ══════════════ -->
+  {latestPosts.length > 0 && (
+    <section class="section-pad" style="background:var(--bg-section);" aria-labelledby="journal-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="journal-heading">Latest from the Studio</h2>
+            <p class="section-sub">Development notes, tutorials, and behind-the-scenes dispatches.</p>
+          </div>
+          <a href="/journal/" class="btn btn-outline">All entries →</a>
+        </div>
+
+        <div class="posts-grid">
+          {latestPosts.map((post, i) => (
+            <ArticleCard
+              title={post.data.title}
+              slug={post.id}
+              date={post.data.date.toISOString()}
+              category={post.data.category}
+              excerpt={post.data.description}
+              cover={post.data.cover}
+              featured={i === 0}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ══════════════ CURRENTLY BREWING ══════════════ -->
+  {projects.length > 0 && (
+    <section class="section-pad brewing-section" aria-labelledby="brewing-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="brewing-heading">Currently Brewing</h2>
+            <p class="section-sub">Active experiments and works-in-progress from the workshop.</p>
+          </div>
+        </div>
+        <div class="brewing-list">
+          {projects.map(async (project) => {
+            const { Content } = await render(project);
+            return (
+              <div class="brewing-item sketch-border">
+                <div class="brewing-item-info">
+                  <div class="brewing-item-header">
+                    <h3>{project.data.title}</h3>
+                    <span class:list={['badge', {
+                      'badge-prototype': project.data.status === 'Prototype',
+                      'badge-indev': project.data.status === 'In Development',
+                      'badge-released': project.data.status === 'Released',
+                      'badge-archived': project.data.status === 'Archived',
+                    }]}>
+                      {project.data.status}
+                    </span>
+                  </div>
+                  <p class="brewing-desc">{project.data.description}</p>
+                  {project.data.link && (
+                    <a href={project.data.link} class="btn btn-outline" style="font-size:0.85rem;padding:6px 14px;">
+                      Learn more →
+                    </a>
+                  )}
+                </div>
+                {project.data.cover && (
+                  <div class="brewing-item-cover">
+                    <img src={project.data.cover} alt="" loading="lazy" width="300" height="200" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Ink divider -->
+  <div class="ink-divider container" aria-hidden="true"></div>
+
+  <!-- ══════════════ GAMES & EXPERIMENTS ══════════════ -->
+  {featuredGames.length > 0 && (
+    <section class="section-pad" aria-labelledby="games-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="games-heading">Games &amp; Experiments</h2>
+            <p class="section-sub">Playable things and interactive explorations from the studio.</p>
+          </div>
+          <a href="/games/" class="btn btn-outline">All projects →</a>
+        </div>
+        <div class="games-grid">
+          {featuredGames.map(game => (
+            <GameCard
+              title={game.data.title}
+              slug={game.id}
+              description={game.data.description}
+              genre={game.data.genre}
+              status={game.data.status}
+              cover={game.data.cover}
+              itchUrl={game.data.itchUrl}
+              releaseDate={game.data.releaseDate?.toISOString()}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Wavy divider -->
+  <div class="wave-divider wave-divider--dark" aria-hidden="true">
+    <svg viewBox="0 0 1440 40" preserveAspectRatio="none">
+      <path d="M0 20 Q360 5 720 20 Q1080 35 1440 20 V40 H0 Z" fill="var(--bg-forest)"/>
+    </svg>
+  </div>
+
+  <!-- ══════════════ KNOWLEDGE CORNER ══════════════ -->
+  {knowledgePosts.length > 0 && (
+    <section class="section-pad knowledge-section" aria-labelledby="knowledge-heading">
+      <div class="container">
+        <div class="section-header" style="color:var(--color-cream-text)">
+          <div>
+            <h2 id="knowledge-heading" style="color:var(--color-lime)">Knowledge Corner</h2>
+            <p class="section-sub" style="color:rgba(240,232,208,0.75)">Tutorials, technical breakdowns, and engine experiments.</p>
+          </div>
+          <a href="/journal/?cat=Tutorial" class="btn btn-dark" style="border-color:var(--color-lime);color:var(--color-lime)">More knowledge →</a>
+        </div>
+        <div class="posts-grid posts-grid--forest">
+          {knowledgePosts.map((post) => (
+            <ArticleCard
+              title={post.data.title}
+              slug={post.id}
+              date={post.data.date.toISOString()}
+              category={post.data.category}
+              excerpt={post.data.description}
+              cover={post.data.cover}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ══════════════ VIDEO CORNER ══════════════ -->
+  {featuredVideos.length > 0 && (
+    <section class="section-pad video-section" aria-labelledby="video-heading" style="background:var(--bg-section);">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="video-heading">Video Corner</h2>
+            <p class="section-sub">Devlogs, tutorials, and behind-the-scenes videos.</p>
+          </div>
+          <a href="/videos/" class="btn btn-outline">All videos →</a>
+        </div>
+        <div class="videos-grid">
+          {featuredVideos.map(v => (
+            <VideoCard
+              title={v.data.title}
+              youtubeId={v.data.youtubeId}
+              description={v.data.description}
+              category={v.data.category}
+              date={v.data.date.toISOString()}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ══════════════ STUDIO INTRO ══════════════ -->
+  <section class="section-pad studio-intro" aria-labelledby="studio-heading">
+    <div class="container studio-intro-inner">
+      <div class="studio-intro-text">
+        <p class="hand-label" style="color:var(--color-lime-dark);margin-bottom:var(--space-3)">✦ About the Studio</p>
+        <h2 id="studio-heading">What is BrewPine?</h2>
+        <p>BrewPine is an independent game development studio — a small, curious outfit exploring what games can be. We build prototypes, write devlogs, and publish whatever feels interesting.</p>
+        <p>Not a big studio. Not a corporation. Just a workshop where ideas get tested, broken, rebuilt, and occasionally shipped.</p>
+        <a href="/studio/" class="btn btn-primary">Meet the Studio →</a>
+      </div>
+      <div class="studio-intro-doodle" aria-hidden="true">
+        <!-- Animated cauldron doodle -->
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cauldron-svg">
+          <ellipse cx="100" cy="150" rx="55" ry="20" stroke="var(--color-forest)" stroke-width="2"/>
+          <path d="M45 130 Q44 100 50 80 Q56 65 100 65 Q144 65 150 80 Q156 100 155 130" stroke="var(--color-forest)" stroke-width="2" fill="none"/>
+          <ellipse cx="100" cy="65" rx="30" ry="10" stroke="var(--color-moss)" stroke-width="1.5" fill="none"/>
+          <!-- Bubbles -->
+          <circle cx="90" cy="55" r="4" stroke="var(--color-lime-dark)" stroke-width="1.5" fill="none" class="bubble-anim" style="animation-delay:0s"/>
+          <circle cx="105" cy="45" r="3" stroke="var(--color-lime-dark)" stroke-width="1.5" fill="none" class="bubble-anim" style="animation-delay:0.4s"/>
+          <circle cx="95" cy="38" r="2.5" stroke="var(--color-lime-dark)" stroke-width="1.2" fill="none" class="bubble-anim" style="animation-delay:0.8s"/>
+          <!-- Stand legs -->
+          <line x1="50" y1="148" x2="40" y2="175" stroke="var(--color-forest)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="150" y1="148" x2="160" y2="175" stroke="var(--color-forest)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="100" y1="150" x2="100" y2="178" stroke="var(--color-forest)" stroke-width="2" stroke-linecap="round"/>
+          <!-- Pine symbols -->
+          <path d="M20 80 L25 70 L30 80 M23 78 L23 88" stroke="var(--color-moss-light)" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M170 80 L175 70 L180 80 M173 78 L173 88" stroke="var(--color-moss-light)" stroke-width="1.2" stroke-linecap="round"/>
+          <!-- Stars -->
+          <circle cx="30" cy="50" r="1.5" fill="var(--color-lime-dark)"/>
+          <circle cx="170" cy="55" r="1.5" fill="var(--color-lime-dark)"/>
+          <circle cx="155" cy="35" r="1" fill="var(--color-olive)"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  /* --- Hero --- */
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--color-parchment);
+    padding: var(--space-24) 0 var(--space-16);
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .doodle {
+    position: absolute;
+    color: var(--color-moss);
+    opacity: 0.2;
+  }
+
+  .doodle-mushroom { top: 10%; right: 5%; width: 120px; animation: float 6s ease-in-out infinite; }
+  .doodle-potion   { bottom: 15%; right: 18%; width: 80px; animation: float 8s ease-in-out infinite 1s; }
+  .doodle-pine     { top: 5%; left: 3%; width: 80px; animation: float 7s ease-in-out infinite 0.5s; }
+  .doodle-stars    { top: 40%; left: 8%; width: 160px; animation: float 10s ease-in-out infinite 2s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50%       { transform: translateY(-12px) rotate(1.5deg); }
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-eyebrow {
+    font-size: 1rem;
+    color: var(--color-lime-dark);
+    margin-bottom: var(--space-4);
+    display: block;
+  }
+
+  .hero-headline {
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 900;
+    color: var(--color-forest);
+    line-height: 1.05;
+    margin-bottom: var(--space-6);
+    letter-spacing: -0.02em;
+  }
+
+  .hero-accent {
+    color: var(--color-lime-dark);
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-accent::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--color-lime);
+    border-radius: 2px;
+    animation: expand 1s ease-out 0.3s both;
+  }
+
+  @keyframes expand { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); } }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-8);
+    max-width: 500px;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-6);
+  }
+
+  .hero-annotation {
+    font-size: 0.95rem;
+    color: var(--color-olive);
+    display: block;
+    transform: rotate(-1deg);
+  }
+
+  .hero-illustration { display: flex; align-items: center; justify-content: center; }
+
+  .hero-img {
+    width: 100%;
+    max-width: 520px;
+    object-fit: contain;
+    filter: drop-shadow(4px 8px 20px rgba(30,58,37,0.2));
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: var(--space-6);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-olive);
+    font-size: 0.75rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* --- Dividers --- */
+  .wave-divider { width: 100%; line-height: 0; }
+  .wave-divider svg { width: 100%; display: block; }
+
+  /* --- Posts Grid --- */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  .posts-grid > :first-child { grid-column: span 2; }
+
+  /* --- Games Grid --- */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+
+  /* --- Videos Grid --- */
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+
+  /* --- Brewing Section --- */
+  .brewing-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .brewing-item {
+    display: flex;
+    gap: var(--space-8);
+    padding: var(--space-6);
+    background: var(--color-parchment);
+    align-items: flex-start;
+  }
+
+  .brewing-item-info { flex: 1; }
+
+  .brewing-item-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .brewing-desc {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+  }
+
+  .brewing-item-cover {
+    width: 240px;
+    flex-shrink: 0;
+  }
+
+  .brewing-item-cover img {
+    width: 100%;
+    border: 2px solid var(--color-charcoal);
+    border-radius: 2px;
+  }
+
+  /* --- Knowledge Section --- */
+  .knowledge-section {
+    background: var(--color-forest);
+    color: var(--color-cream-text);
+  }
+  .knowledge-section .section-sub { color: rgba(240,232,208,0.75); }
+
+  /* --- Studio Intro --- */
+  .studio-intro {
+    background: var(--color-parchment);
+  }
+
+  .studio-intro-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: center;
+  }
+
+  .studio-intro-text h2 { margin-bottom: var(--space-4); }
+  .studio-intro-text p  { color: var(--text-secondary); margin-bottom: var(--space-4); }
+  .studio-intro-text .btn { margin-top: var(--space-2); }
+
+  .studio-intro-doodle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cauldron-svg {
+    width: 100%;
+    max-width: 280px;
+    animation: float 7s ease-in-out infinite;
+  }
+
+  .bubble-anim {
+    animation: bubble-rise 2.5s ease-in-out infinite;
+  }
+
+  @keyframes bubble-rise {
+    0%   { transform: translateY(0); opacity: 0.8; }
+    100% { transform: translateY(-30px); opacity: 0; }
+  }
+
+  /* --- Section Helpers --- */
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-10);
+    flex-wrap: wrap;
+  }
+
+  .section-sub {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-top: var(--space-2);
+    margin-bottom: 0;
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-illustration { display: none; }
+    .hero { min-height: auto; padding: var(--space-16) 0 var(--space-12); }
+    .posts-grid { grid-template-columns: 1fr; }
+    .posts-grid > :first-child { grid-column: span 1; }
+    .studio-intro-inner { grid-template-columns: 1fr; }
+    .studio-intro-doodle { display: none; }
+    .brewing-item-cover { display: none; }
+    .brewing-item { flex-direction: column; }
+  }
+
+  @media (max-width: 600px) {
+    .hero-buttons { flex-direction: column; align-items: flex-start; }
+    .games-grid, .videos-grid { grid-template-columns: 1fr; }
+  }
+</style>

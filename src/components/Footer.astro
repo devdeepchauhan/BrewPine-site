@@ -1,0 +1,203 @@
+---
+import { SITE_TITLE, SITE_TAGLINE, SOCIAL, CONTACT_EMAIL } from '../consts';
+
+const socialLinks = [
+  { href: SOCIAL.github,   label: 'GitHub',   icon: 'gh' },
+  { href: SOCIAL.itchio,   label: 'itch.io',  icon: 'itch' },
+  { href: SOCIAL.youtube,  label: 'YouTube',  icon: 'yt' },
+  { href: SOCIAL.twitter,  label: 'Twitter',  icon: 'tw' },
+  { href: SOCIAL.discord,  label: 'Discord',  icon: 'dc' },
+].filter(s => s.href);
+
+const footerNav = [
+  { href: '/',         label: 'Home' },
+  { href: '/journal/', label: 'Journal' },
+  { href: '/games/',   label: 'Games' },
+  { href: '/studio/',  label: 'Studio' },
+  { href: '/videos/',  label: 'Videos' },
+  { href: '/contact/', label: 'Collab' },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer" role="contentinfo">
+  <!-- Wavy top border -->
+  <svg class="footer-wave" viewBox="0 0 1440 40" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 20 Q180 0 360 20 Q540 40 720 20 Q900 0 1080 20 Q1260 40 1440 20 V40 H0 Z" fill="var(--color-parchment)"/>
+  </svg>
+
+  <div class="footer-body">
+    <div class="container footer-inner">
+      <!-- Brand column -->
+      <div class="footer-brand">
+        <a href="/" class="footer-logo" aria-label="BrewPine">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="32" height="32">
+            <path d="M18 3 L26 14 H22 L28 22 H23 L30 32 H6 L13 22 H8 L14 14 H10 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+            <circle cx="18" cy="22" r="4.5" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <circle cx="10" cy="10" r="1" fill="currentColor"/>
+            <circle cx="26" cy="8" r="0.8" fill="currentColor"/>
+          </svg>
+          <span>{SITE_TITLE}</span>
+        </a>
+        <p class="footer-tagline hand-label">{SITE_TAGLINE}</p>
+        <p class="footer-desc">An independent game studio exploring mechanics, art, and interactive worlds.</p>
+        <a href={`mailto:${CONTACT_EMAIL}`} class="footer-email">{CONTACT_EMAIL}</a>
+      </div>
+
+      <!-- Navigation column -->
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <p class="footer-nav-title hand-label">Navigate</p>
+        {footerNav.map(link => (
+          <a href={link.href} class="footer-nav-link">{link.label}</a>
+        ))}
+      </nav>
+
+      <!-- Social column -->
+      <div class="footer-social">
+        <p class="footer-nav-title hand-label">Find us</p>
+        {socialLinks.map(s => (
+          <a href={s.href} class="footer-nav-link" target="_blank" rel="noopener noreferrer">
+            {s.label} ↗
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="footer-bottom container">
+      <p class="footer-copy">
+        &copy; {year} BrewPine · All rights reserved
+      </p>
+      <p class="footer-handnote hand-label">
+        ✦ Brewed with curiosity &amp; too much coffee ✦
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-20);
+    background: var(--color-forest);
+    color: var(--color-cream-text);
+    position: relative;
+  }
+
+  .footer-wave {
+    width: 100%;
+    height: 40px;
+    display: block;
+    margin-bottom: -1px;
+  }
+
+  .footer-body {
+    padding: var(--space-12) 0 var(--space-8);
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: var(--space-10);
+    margin-bottom: var(--space-10);
+  }
+
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--color-lime);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 900;
+    margin-bottom: var(--space-3);
+  }
+  .footer-logo:hover { color: var(--color-lime-glow); text-decoration: none; }
+
+  .footer-tagline {
+    color: var(--color-lime);
+    font-size: 1.1rem;
+    margin-bottom: var(--space-3);
+    display: block;
+  }
+
+  .footer-desc {
+    color: rgba(240,232,208,0.7);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-4);
+  }
+
+  .footer-email {
+    color: var(--color-lime-glow);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .footer-email:hover { color: #fff; }
+
+  .footer-nav-title {
+    font-size: 0.95rem;
+    color: var(--color-lime);
+    margin-bottom: var(--space-4);
+    display: block;
+  }
+
+  .footer-nav,
+  .footer-social {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .footer-nav-link {
+    color: rgba(240,232,208,0.75);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: var(--space-1) 0;
+    border-bottom: 1px solid transparent;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .footer-nav-link:hover {
+    color: var(--color-lime);
+    border-bottom-color: var(--color-lime);
+    text-decoration: none;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: var(--space-6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: rgba(240,232,208,0.5);
+    margin: 0;
+  }
+
+  .footer-handnote {
+    font-size: 1rem;
+    color: rgba(168,216,49,0.6);
+  }
+
+  @media (max-width: 768px) {
+    .footer-inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+</style>

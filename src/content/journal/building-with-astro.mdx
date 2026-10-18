@@ -1,0 +1,80 @@
+---
+title: "Building a Game Website with Astro — What I Learned"
+description: "How I set up this BrewPine website using Astro, Markdown content collections, and free static hosting. A beginner-to-intermediate technical breakdown."
+date: 2026-10-10
+category: "Tutorial"
+tags: ["astro", "web-dev", "tutorial", "static-sites"]
+cover: "/images/journal/astro-post-cover.jpg"
+draft: false
+---
+
+# Building a Game Website with Astro
+
+> **⚠ SAMPLE POST** — Replace with your own technical write-ups. This post demonstrates how code snippets and structure work in journal articles.
+
+When BrewPine needed a home on the internet, I had a few requirements: it had to be fast, cheap (ideally free), and easy to update by creating simple text files without touching complicated infrastructure.
+
+After a bit of research, I landed on **Astro** — a static-site framework that generates plain HTML files, deploys to free CDNs, and handles Markdown content natively.
+
+Here's what I learned along the way.
+
+## Why Astro?
+
+Astro's approach is interesting: by default, it ships **zero JavaScript** to the browser. Pages are rendered at build time into pure HTML. For a studio website with articles and game showcases, this is ideal — fast loads, no client-side framework overhead, and simple deployment.
+
+The **Content Collections** feature is particularly useful. You define a schema:
+
+```typescript
+// src/content/config.ts
+const journalCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title:    z.string(),
+    date:     z.coerce.date(),
+    category: z.enum(['Studio News', 'Tutorial', 'Development Log']),
+    tags:     z.array(z.string()).default([]),
+  }),
+});
+```
+
+And then Astro validates every Markdown file in that folder against that schema automatically. If you forget a required field, the build fails with a clear error — much better than discovering missing data at runtime.
+
+## Setting Up a Post
+
+Creating a new journal entry is as simple as creating a file:
+
+```
+src/content/journal/my-new-post.mdx
+```
+
+With frontmatter at the top:
+
+```yaml
+---
+title: "My New Post"
+date: 2026-10-15
+category: "Development Log"
+tags: ["godot", "prototyping"]
+---
+```
+
+Then the rest of the file is plain Markdown — or MDX if you need to embed interactive components.
+
+## Deploying for Free
+
+The build output goes into a `dist/` folder of pure static HTML. You can deploy this to:
+
+- **Cloudflare Pages** — Connect your GitHub repo, set build command to `npm run build`, output to `dist/`. Done.
+- Netlify, Vercel, or GitHub Pages also work.
+
+The whole site costs **₹0** to host.
+
+## What's Next
+
+The studio website setup covered the basics. Upcoming posts will go into:
+
+- Setting up game showcase pages with itch.io embeds.
+- Adding a video archive for devlogs.
+- Optimizing images for fast loading.
+
+If you're an indie developer looking for a similar setup, feel free to reach out.

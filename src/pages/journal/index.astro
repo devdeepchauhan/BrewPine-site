@@ -1,0 +1,247 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('journal', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const categories = ['All', ...new Set(allPosts.map(p => p.data.category))];
+---
+
+<BaseLayout title="Journal" description="Development logs, tutorials, studio news, and technical notes from BrewPine.">
+  <div class="journal-header">
+    <div class="container">
+      <p class="hand-label" style="color:var(--color-lime-dark)">✦ The Field Journal</p>
+      <h1>BrewPine Journal</h1>
+      <p class="journal-header-sub">Development logs, tutorials, engine experiments, and studio dispatches. All the things worth writing down.</p>
+    </div>
+  </div>
+
+  <section class="section-pad">
+    <div class="container">
+      <!-- Search + Filters -->
+      <div class="journal-controls">
+        <div class="journal-search-wrap">
+          <input
+            type="search"
+            id="journal-search"
+            placeholder="Search entries..."
+            aria-label="Search journal entries"
+            class="journal-search"
+          />
+          <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M13.5 13.5 L18 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="journal-filters" role="group" aria-label="Filter by category">
+          {categories.map(cat => (
+            <button
+              class="filter-btn"
+              data-category={cat}
+              aria-pressed={cat === 'All'}
+            >{cat}</button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Post count -->
+      <p class="journal-count hand-label" id="post-count">
+        Showing {allPosts.length} {allPosts.length === 1 ? 'entry' : 'entries'}
+      </p>
+
+      <!-- Posts grid -->
+      <div class="posts-grid" id="posts-container">
+        {allPosts.map((post, i) => (
+          <div
+            class="post-item"
+            data-title={post.data.title.toLowerCase()}
+            data-category={post.data.category}
+            data-tags={post.data.tags.join(',')}
+          >
+            <ArticleCard
+              title={post.data.title}
+              slug={post.id}
+              date={post.data.date.toISOString()}
+              category={post.data.category}
+              excerpt={post.data.description}
+              cover={post.data.cover}
+            />
+          </div>
+        ))}
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="empty-state" hidden>
+        <p class="hand-label" style="font-size:1.5rem">← nothing here yet →</p>
+        <p>No entries match your search. Try different keywords or clear the filter.</p>
+        <button class="btn btn-outline" id="clear-search">Clear search</button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const search = document.getElementById('journal-search') as HTMLInputElement;
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const postItems = document.querySelectorAll('.post-item') as NodeListOf<HTMLElement>;
+  const emptyState = document.getElementById('empty-state')!;
+  const countEl = document.getElementById('post-count')!;
+  const clearBtn = document.getElementById('clear-search')!;
+
+  let activeCategory = 'All';
+  let searchTerm = '';
+
+  function updateDisplay() {
+    let visible = 0;
+    postItems.forEach(item => {
+      const title = item.dataset.title ?? '';
+      const cat   = item.dataset.category ?? '';
+      const tags  = item.dataset.tags ?? '';
+      const matchSearch = !searchTerm || title.includes(searchTerm) || tags.includes(searchTerm);
+      const matchCat    = activeCategory === 'All' || cat === activeCategory;
+      const show = matchSearch && matchCat;
+      item.hidden = !show;
+      if (show) visible++;
+    });
+
+    emptyState.hidden = visible > 0;
+    countEl.textContent = `Showing ${visible} ${visible === 1 ? 'entry' : 'entries'}`;
+  }
+
+  search.addEventListener('input', () => {
+    searchTerm = search.value.toLowerCase().trim();
+    updateDisplay();
+  });
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategory = (btn as HTMLElement).dataset.category ?? 'All';
+      filterBtns.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      updateDisplay();
+    });
+  });
+
+  clearBtn.addEventListener('click', () => {
+    search.value = '';
+    searchTerm = '';
+    activeCategory = 'All';
+    filterBtns.forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-category') === 'All' ? 'true' : 'false'));
+    updateDisplay();
+  });
+</script>
+
+<style>
+  .journal-header {
+    background: var(--color-forest);
+    color: var(--color-cream-text);
+    padding: var(--space-16) 0 var(--space-12);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .journal-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, var(--color-lime), var(--color-moss-light), var(--color-lime));
+  }
+
+  .journal-header h1 { color: var(--color-lime); font-size: clamp(2rem, 5vw, 3.5rem); margin: var(--space-2) 0 var(--space-4); }
+  .journal-header-sub { color: rgba(240,232,208,0.8); max-width: 600px; font-size: 1rem; margin: 0; }
+
+  /* Controls */
+  .journal-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .journal-search-wrap {
+    position: relative;
+    max-width: 480px;
+  }
+
+  .journal-search {
+    width: 100%;
+    padding: var(--space-3) var(--space-5) var(--space-3) var(--space-10);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    background: var(--color-parchment);
+    border: 2px solid var(--color-charcoal);
+    border-radius: 3px;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color var(--transition-fast);
+  }
+
+  .journal-search:focus { border-color: var(--color-lime); }
+
+  .search-icon {
+    position: absolute;
+    left: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .journal-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .filter-btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border: 1.5px solid var(--color-charcoal);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .filter-btn:hover,
+  .filter-btn[aria-pressed="true"] {
+    background: var(--color-lime);
+    border-color: var(--color-lime-dark);
+    color: var(--color-charcoal);
+  }
+
+  .journal-count {
+    color: var(--color-olive);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-8);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-20) var(--space-8);
+    color: var(--text-muted);
+  }
+
+  .empty-state p { margin-bottom: var(--space-6); max-width: 400px; margin-left: auto; margin-right: auto; }
+
+  @media (max-width: 768px) {
+    .posts-grid { grid-template-columns: 1fr; }
+  }
+</style>

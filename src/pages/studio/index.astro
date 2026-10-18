@@ -1,0 +1,297 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { SOCIAL } from '../../consts';
+
+const team = (await getCollection('team'))
+  .filter(m => !m.data.hidden)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Studio" description="The BrewPine studio — who we are, what we make, and why we make it.">
+  <!-- Header -->
+  <div class="studio-header">
+    <div class="container">
+      <p class="hand-label" style="color:var(--color-lime-dark)">✦ The Workshop</p>
+      <h1>The Studio</h1>
+      <p class="studio-header-sub">An independent game development studio exploring mechanics, art, and interactive worlds.</p>
+    </div>
+  </div>
+
+  <!-- Studio story -->
+  <section class="section-pad" aria-labelledby="story-heading">
+    <div class="container story-grid">
+      <div class="story-text">
+        <h2 id="story-heading">What is BrewPine?</h2>
+        <p>BrewPine is an independent game development studio — small, curious, and early-stage. The name reflects two core ideas: <strong>brewing</strong> (the act of mixing, experimenting, and letting ideas develop slowly until they're ready) and <strong>pine</strong> (grounded, persistent, always growing even in dark places).</p>
+        <p>This is not a corporation with a headcount and a quarterly roadmap. It's a creative initiative exploring what games can be — what mechanics feel satisfying, what worlds feel alive, what experiments are worth running.</p>
+
+        <div class="philosophy-blocks">
+          <div class="philosophy-block sketch-border">
+            <p class="hand-label" style="color:var(--color-lime-dark)">We believe in</p>
+            <ul>
+              <li>Experiments over safe choices</li>
+              <li>Honesty about what's finished and what isn't</li>
+              <li>Documenting the process openly</li>
+              <li>Small, complete things over unfinished ambitions</li>
+            </ul>
+          </div>
+          <div class="philosophy-block sketch-border">
+            <p class="hand-label" style="color:var(--color-lime-dark)">Currently exploring</p>
+            <ul>
+              <li>2D game mechanics and movement systems</li>
+              <li>Godot Engine and GDScript</li>
+              <li>Hand-drawn art and procedural textures</li>
+              <li>Game design patterns and player psychology</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="story-art" aria-hidden="true">
+        <img src="/images/about-sketch.png" alt="" width="480" height="420" loading="lazy" class="story-img" />
+        <p class="hand-label story-caption">← the workshop, more or less</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="ink-divider container" aria-hidden="true"></div>
+
+  <!-- Team -->
+  <section class="section-pad" aria-labelledby="team-heading">
+    <div class="container">
+      <h2 id="team-heading">The People</h2>
+      <p class="team-intro-text">
+        BrewPine started as a solo initiative. As collaborators join, they'll appear here.
+      </p>
+
+      {team.length > 0 ? (
+        <div class="team-grid">
+          {team.map(member => (
+            <div class="team-card sketch-border">
+              <div class="team-card-avatar">
+                {member.data.avatar
+                  ? <img src={member.data.avatar} alt={member.data.name} width="120" height="120" loading="lazy" />
+                  : (
+                    <div class="team-avatar-placeholder" aria-hidden="true">
+                      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="40" cy="30" r="16" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <path d="M10 72 Q10 52 40 52 Q70 52 70 72" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+                      </svg>
+                    </div>
+                  )
+                }
+                {member.data.founder && <span class="founder-badge hand-label">✦ Founder</span>}
+              </div>
+              <div class="team-card-info">
+                <h3 class="team-name">{member.data.name}</h3>
+                <p class="team-role">{member.data.role}</p>
+                <p class="team-bio">{member.data.bio}</p>
+                {member.data.skills.length > 0 && (
+                  <div class="team-skills">
+                    {member.data.skills.map(s => <span class="skill-tag">{s}</span>)}
+                  </div>
+                )}
+                {Object.values(member.data.social).some(Boolean) && (
+                  <div class="team-social">
+                    {member.data.social.github && <a href={member.data.social.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>}
+                    {member.data.social.itchio && <a href={member.data.social.itchio} target="_blank" rel="noopener noreferrer">itch.io ↗</a>}
+                    {member.data.social.twitter && <a href={member.data.social.twitter} target="_blank" rel="noopener noreferrer">Twitter ↗</a>}
+                    {member.data.social.portfolio && <a href={member.data.social.portfolio} target="_blank" rel="noopener noreferrer">Portfolio ↗</a>}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="hand-label" style="color:var(--color-olive);font-size:1.1rem">Profiles coming soon...</p>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .studio-header {
+    background: var(--color-moss);
+    color: var(--color-cream-text);
+    padding: var(--space-16) 0 var(--space-12);
+    border-bottom: 3px solid var(--color-lime);
+  }
+
+  .studio-header h1 { color: var(--color-cream-text); margin: var(--space-2) 0 var(--space-4); }
+  .studio-header-sub { color: rgba(240,232,208,0.8); max-width: 600px; margin: 0; }
+
+  .story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: start;
+  }
+
+  .story-text h2 { margin-bottom: var(--space-5); }
+  .story-text p { color: var(--text-secondary); margin-bottom: var(--space-4); }
+
+  .philosophy-blocks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+
+  .philosophy-block {
+    padding: var(--space-5);
+    background: var(--color-parchment-dark);
+  }
+
+  .philosophy-block ul {
+    list-style: none;
+    margin-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .philosophy-block li {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding-left: var(--space-4);
+    position: relative;
+  }
+
+  .philosophy-block li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--color-lime-dark);
+    font-size: 0.8rem;
+  }
+
+  .story-art { position: relative; }
+
+  .story-img {
+    width: 100%;
+    border: 2px solid var(--color-charcoal);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lift);
+    object-fit: cover;
+  }
+
+  .story-caption {
+    margin-top: var(--space-3);
+    font-size: 0.9rem;
+    color: var(--color-olive);
+    transform: rotate(-1.5deg);
+    display: inline-block;
+  }
+
+  .team-intro-text {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-10);
+    max-width: 600px;
+  }
+
+  .team-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .team-card {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: var(--space-8);
+    padding: var(--space-8);
+    background: var(--color-parchment);
+    align-items: start;
+  }
+
+  .team-card-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    text-align: center;
+  }
+
+  .team-card-avatar img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-charcoal);
+  }
+
+  .team-avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border: 1.5px dashed var(--color-charcoal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  .team-avatar-placeholder svg { width: 60px; height: 60px; }
+
+  .founder-badge {
+    font-size: 0.85rem;
+    color: var(--color-lime-dark);
+    background: rgba(168,216,49,0.1);
+    border: 1px solid var(--color-lime-dark);
+    border-radius: 2px;
+    padding: 2px 8px;
+  }
+
+  .team-name { font-size: 1.4rem; color: var(--color-forest); margin-bottom: var(--space-1); }
+
+  .team-role {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    color: var(--color-olive);
+    text-transform: uppercase;
+    margin-bottom: var(--space-4);
+  }
+
+  .team-bio { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; margin-bottom: var(--space-5); }
+
+  .team-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+  }
+
+  .skill-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    background: var(--color-parchment-dark);
+    border: 1.5px solid var(--color-charcoal);
+    border-radius: 2px;
+    padding: 3px 10px;
+    color: var(--text-secondary);
+  }
+
+  .team-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .team-social a {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-lime-dark);
+  }
+
+  @media (max-width: 900px) {
+    .story-grid { grid-template-columns: 1fr; }
+    .story-art { display: none; }
+    .philosophy-blocks { grid-template-columns: 1fr; }
+    .team-card { grid-template-columns: 1fr; }
+    .team-card-avatar { align-items: flex-start; }
+  }
+</style>

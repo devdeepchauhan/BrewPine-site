@@ -1,0 +1,171 @@
+---
+export interface Props {
+  title: string;
+  youtubeId: string;
+  thumbnail?: string;
+  description: string;
+  category: string;
+  date: string;
+}
+
+const { title, youtubeId, thumbnail, description, category, date } = Astro.props;
+const thumbUrl = thumbnail ?? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+const formattedDate = new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<div class="video-card sketch-border">
+  <div class="video-card-thumb" id={`vc-${youtubeId}`}>
+    <img src={thumbUrl} alt={`Thumbnail for ${title}`} loading="lazy" width="480" height="270" />
+    <div class="video-card-overlay">
+      <button
+        class="video-card-play"
+        aria-label={`Play ${title}`}
+        data-yt-id={youtubeId}
+        data-container={`vc-${youtubeId}`}
+      >
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="24" cy="24" r="20" fill="rgba(30,58,37,0.85)" stroke="var(--color-lime)" stroke-width="2"/>
+          <path d="M19 16 L34 24 L19 32 Z" fill="var(--color-lime)"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="video-card-body">
+    <div class="video-card-meta">
+      <span class="category-pill">{category}</span>
+      <time datetime={date} class="video-card-date">{formattedDate}</time>
+    </div>
+    <h3 class="video-card-title">{title}</h3>
+    <p class="video-card-desc">{description}</p>
+    <a
+      href={`https://www.youtube.com/watch?v=${youtubeId}`}
+      class="video-card-ext"
+      target="_blank" rel="noopener noreferrer"
+    >
+      Watch on YouTube ↗
+    </a>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.video-card-play').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ytId = btn.getAttribute('data-yt-id');
+      const containerId = btn.getAttribute('data-container');
+      const container = document.getElementById(containerId ?? '');
+      if (!container || !ytId) return;
+
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0`;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.width = '100%';
+      iframe.height = '100%';
+      iframe.style.cssText = 'position:absolute;inset:0;border:0;';
+      iframe.title = `YouTube video player`;
+
+      container.style.position = 'relative';
+      container.style.paddingBottom = '56.25%';
+      container.style.height = '0';
+      container.innerHTML = '';
+      container.appendChild(iframe);
+    });
+  });
+</script>
+
+<style>
+  .video-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-parchment);
+    overflow: hidden;
+  }
+
+  .video-card-thumb {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    background: var(--color-charcoal);
+  }
+
+  .video-card-thumb img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--transition-med), filter var(--transition-med);
+  }
+
+  .video-card:hover .video-card-thumb img {
+    transform: scale(1.03);
+    filter: brightness(0.85);
+  }
+
+  .video-card-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14,13,9,0.25);
+    transition: background var(--transition-med);
+  }
+
+  .video-card:hover .video-card-overlay { background: rgba(14,13,9,0.4); }
+
+  .video-card-play {
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform var(--transition-med);
+  }
+
+  .video-card-play svg { width: 56px; height: 56px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6)); }
+  .video-card-play:hover { transform: scale(1.1); }
+
+  .video-card-body {
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .video-card-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .video-card-date {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .video-card-title {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-2);
+    color: var(--color-forest);
+  }
+
+  .video-card-desc {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-4);
+    flex: 1;
+  }
+
+  .video-card-ext {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-lime-dark);
+    text-decoration: none;
+  }
+
+  .video-card-ext:hover { text-decoration: underline; }
+</style>

@@ -1,0 +1,146 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GameCard from '../../components/GameCard.astro';
+import { getCollection } from 'astro:content';
+
+const allGames = (await getCollection('games', ({ data }) => !data.draft))
+  .sort((a, b) => {
+    const statusOrder = { 'In Development': 0, 'Prototype': 1, 'Released': 2, 'Archived': 3 };
+    return (statusOrder[a.data.status] ?? 4) - (statusOrder[b.data.status] ?? 4);
+  });
+
+const statuses = ['All', 'Prototype', 'In Development', 'Released', 'Archived'];
+---
+
+<BaseLayout title="Games" description="BrewPine games, prototypes, and interactive experiments. Playable things from the studio.">
+  <div class="games-header">
+    <div class="container">
+      <p class="hand-label" style="color:var(--color-lime-dark)">✦ The Catalogue</p>
+      <h1>Games &amp; Experiments</h1>
+      <p class="games-header-sub">Playable releases, active prototypes, and interactive experiments from the BrewPine workshop.</p>
+    </div>
+  </div>
+
+  <section class="section-pad">
+    <div class="container">
+      <!-- Status filter -->
+      <div class="status-filters" role="group" aria-label="Filter by status">
+        {statuses.map(s => (
+          <button class="filter-btn" data-status={s} aria-pressed={s === 'All'}>{s}</button>
+        ))}
+      </div>
+
+      <!-- Games grid -->
+      {allGames.length > 0 ? (
+        <div class="games-grid" id="games-grid">
+          {allGames.map(game => (
+            <div class="game-item" data-status={game.data.status}>
+              <GameCard
+                title={game.data.title}
+                slug={game.id}
+                description={game.data.description}
+                genre={game.data.genre}
+                status={game.data.status}
+                cover={game.data.cover}
+                itchUrl={game.data.itchUrl}
+                releaseDate={game.data.releaseDate?.toISOString()}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="empty-games">
+          <svg viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="empty-icon" aria-hidden="true">
+            <rect x="20" y="30" width="80" height="50" rx="3" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 3"/>
+            <circle cx="45" cy="55" r="10" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M65 50 L80 50 M72.5 42 L72.5 58" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M40 20 Q60 10 80 20" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2" opacity="0.6"/>
+          </svg>
+          <p class="hand-label" style="font-size:1.5rem">Nothing in the catalogue yet</p>
+          <p>Games and experiments will appear here as they are created. Check back soon, or read the devlog.</p>
+          <a href="/journal/" class="btn btn-primary">Read the Journal →</a>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const gameItems  = document.querySelectorAll('.game-item') as NodeListOf<HTMLElement>;
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const status = (btn as HTMLElement).dataset.status ?? 'All';
+      filterBtns.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+
+      gameItems.forEach(item => {
+        item.hidden = status !== 'All' && item.dataset.status !== status;
+      });
+    });
+  });
+</script>
+
+<style>
+  .games-header {
+    background: var(--color-charcoal-mid);
+    color: var(--color-cream-text);
+    padding: var(--space-16) 0 var(--space-12);
+    border-bottom: 3px solid var(--color-lime);
+  }
+
+  .games-header h1 { color: var(--color-cream-text); margin: var(--space-2) 0 var(--space-4); }
+  .games-header-sub { color: rgba(240,232,208,0.75); max-width: 600px; margin: 0; }
+
+  .status-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-10);
+  }
+
+  .filter-btn {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border: 1.5px solid var(--color-charcoal);
+    border-radius: 2px;
+    background: transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .filter-btn:hover,
+  .filter-btn[aria-pressed="true"] {
+    background: var(--color-lime);
+    border-color: var(--color-lime-dark);
+    color: var(--color-charcoal);
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .empty-games {
+    text-align: center;
+    padding: var(--space-20) var(--space-8);
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .empty-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: var(--space-4);
+  }
+
+  .empty-games p { max-width: 420px; }
+</style>
